@@ -1,0 +1,104 @@
+<div >
+    <h2>Gestão de Disciplinas</h2>
+    <form (ngSubmit)="saveSubject()" #subjectForm="ngForm" style="margin-bottom: 1rem;">
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="subject.name" name="name" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Descrição</mat-label>
+        <textarea matInput [(ngModel)]="subject.description" name="description" required></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Curso</mat-label>
+        <mat-select [(ngModel)]="subject.courseId" name="courseId" required>
+          <mat-option *ngFor="let course of courses" [value]="course.id">{{ course.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Carga Horária</mat-label>
+        <input matInput type="number" [(ngModel)]="subject.workloadHours" name="workloadHours" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Ordem na Matriz</mat-label>
+        <input matInput type="number" [(ngModel)]="subject.orderInMatrix" name="orderInMatrix" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Pré-requisitos</mat-label>
+        <mat-select [(ngModel)]="subject.prerequisites" name="prerequisites" multiple>
+          <mat-option *ngFor="let prereq of subjects" [value]="prereq.id">{{ prereq.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="actions">
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="!subjectForm.form.valid || isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        {{ isLoading ? '' : subject.id ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+
+      <button *ngIf="subject.id" mat-button type="button" (click)="cancelEditSubject()">
+        Cancelar
+      </button>
+      </div>
+    </form>
+
+    <table *ngIf="!isMobile" mat-table [dataSource]="subjects" class="mat-elevation-z8" style="width: 100%;">
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let t"> {{ t.name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="descricao">
+        <th mat-header-cell *matHeaderCellDef> Descrição </th>
+        <td mat-cell *matCellDef="let t"> {{ t.description }} </td>
+      </ng-container>
+      <ng-container matColumnDef="carga_horaria">
+        <th mat-header-cell *matHeaderCellDef> Carga Horária </th>
+        <td mat-cell *matCellDef="let t"> {{ t.workloadHours }} horas </td>
+      </ng-container>
+      <ng-container matColumnDef="ordem">
+        <th mat-header-cell *matHeaderCellDef> Ordem na Matriz </th>
+        <td mat-cell *matCellDef="let t"> {{ t.orderInMatrix }} </td>
+      </ng-container>
+      <!--passando o curso-->
+      <ng-container matColumnDef="curso">
+        <th mat-header-cell *matHeaderCellDef> Curso </th>
+        <td mat-cell *matCellDef="let t"> {{ t.course.name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let t">
+          <button mat-icon-button color="primary" (click)="editSubject(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteSubject(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['nome', 'descricao', 'carga_horaria', 'ordem', 'curso', 'acoes']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['nome', 'descricao', 'carga_horaria', 'ordem', 'curso', 'acoes']"></tr>
+    </table>
+    <div *ngIf="isMobile" class="card-list">
+      <div *ngFor="let t of subjects" class="card-item">
+        <h3>{{ t.name }}</h3>
+        <p>Descrição: {{ t.description }}</p>
+        <p>Carga Horária: {{ t.workloadHours }} horas</p>
+        <p>Ordem na Matriz: {{ t.orderInMatrix }}</p>
+        <p>Curso: {{ t.course.name }}</p>
+        <div class="actions">
+          <button mat-icon-button color="primary" (click)="editSubject(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteSubject(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      </div>
+  </div>

@@ -1,0 +1,200 @@
+<!-- Menu de Gestão de Turmas -->
+<ng-container *ngIf="classSection === 'menu'">
+  <h2>Gestão de Turmas</h2>
+  <div class="card-grid">
+    <mat-card class="card" (click)="classSection = 'crud'">
+
+      <h3>Cadastro de Turmas</h3>
+      <p>Gerenciar criação e edição de turmas</p>
+    </mat-card>
+
+    <mat-card class="card" (click)="classSection = 'vinculo'">
+
+      <h3>Vincular Professores</h3>
+      <p>Atribuir professores às turmas</p>
+    </mat-card>
+  </div>
+</ng-container>
+
+<!-- Botão Voltar -->
+<ng-container *ngIf="classSection !== 'menu'">
+  <button mat-button color="primary" (click)="classSection = 'menu'" class="back-button">
+    <mat-icon>arrow_back</mat-icon> Voltar
+  </button>
+</ng-container>
+
+<!-- Seção de CRUD de Turmas -->
+<div *ngIf="classSection === 'crud'">
+  <h3>Cadastro de Turmas</h3>
+  <form (ngSubmit)="saveClassGroup()" #classGroupForm="ngForm"
+    style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+
+    <mat-form-field appearance="outline" style="width: 200px;">
+      <mat-label>Nome</mat-label>
+      <input matInput [(ngModel)]="classGroup.name" name="name" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 200px;">
+      <mat-label>Data Início</mat-label>
+      <input matInput [(ngModel)]="classGroup.startDate" name="startDate" type="date" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 200px;">
+      <mat-label>Data Fim</mat-label>
+      <input matInput [(ngModel)]="classGroup.endDate" name="endDate" type="date" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 300px;">
+      <mat-label>Matriz Curricular</mat-label>
+      <mat-select [(ngModel)]="classGroup.curriculumMatrixId" name="curriculumMatrixId" required>
+        <mat-option *ngFor="let matrix of curriculumMatrix" [value]="matrix.id">
+          {{ matrix.semester.name }} - {{ matrix.course.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+  <div class="actions">
+    <button mat-raised-button color="primary" type="submit" [disabled]="!classGroupForm.form.valid || isLoading" (click)="saveClassGroup()">
+      <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+      {{ isLoading ? '' : classGroup.id ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+
+    <button *ngIf="classGroup.id" mat-button type="button" (click)="cancelEditClassGroup()">
+      Cancelar
+    </button>
+  </div>
+
+  <table *ngIf="!isMobile" mat-table [dataSource]="classGroups" class="mat-elevation-z8" style="width: 100%;">
+    <ng-container matColumnDef="nome">
+      <th mat-header-cell *matHeaderCellDef> Nome </th>
+      <td mat-cell *matCellDef="let t"> {{ t.name }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="data_inicio">
+      <th mat-header-cell *matHeaderCellDef> Data Início </th>
+      <td mat-cell *matCellDef="let t"> {{ t.startDate | date: 'dd/MM/yyyy' }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="data_fim">
+      <th mat-header-cell *matHeaderCellDef> Data Fim </th>
+      <td mat-cell *matCellDef="let t"> {{ t.endDate | date: 'dd/MM/yyyy' }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="matriz_curricular">
+      <th mat-header-cell *matHeaderCellDef> Matriz Curricular</th>
+      <td mat-cell *matCellDef="let t">
+        {{ t.curriculumMatrix.semester.name || 'N/A' }} - {{ t.curriculumMatrix.course.name || 'N/A' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acoes">
+      <th mat-header-cell *matHeaderCellDef> Ações </th>
+      <td mat-cell *matCellDef="let t">
+        <button mat-icon-button color="primary" (click)="editClassGroup(t)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteClassGroup(t.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['nome', 'data_inicio', 'data_fim', 'matriz_curricular', 'acoes']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['nome', 'data_inicio', 'data_fim', 'matriz_curricular', 'acoes']"></tr>
+  </table>
+
+  <div *ngIf="isMobile" class="card-list">
+    <div *ngFor="let t of classGroups" class="card-item">
+      <h3>{{ t.name }}</h3>
+      <p>Data Início: {{ t.startDate | date: 'dd/MM/yyyy' }}</p>
+      <p>Data Fim: {{ t.endDate | date: 'dd/MM/yyyy' }}</p>
+      <p>Semestre: {{ t.curriculumMatrix?.semester?.name || 'N/A' }}</p>
+      <p>Curso: {{ t.curriculumMatrix?.course?.name || 'N/A' }}</p>
+
+      <div class="actions">
+        <button mat-icon-button color="primary" (click)="editClassGroup(t)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteClassGroup(t.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Seção de Vincular Professores às Turmas -->
+<div *ngIf="classSection === 'vinculo'">
+  <h3>Vincular Professores às Turmas</h3>
+
+  <!-- Exemplo inicial de formulário -->
+  <mat-form-field appearance="outline" style="width: 300px; margin-right: 1rem;">
+    <mat-label>Turma</mat-label>
+    <mat-select [(ngModel)]="selectedClassId" name="classId">
+      <mat-option *ngFor="let c of classGroups" [value]="c.id">
+        {{ c.name }} - {{ c.curriculumMatrix?.course?.name || '' }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" style="width: 300px;">
+    <mat-label>Professor</mat-label>
+    <mat-select [(ngModel)]="selectedTeacherId" name="teacherId">
+      <mat-option *ngFor="let p of teachers" [value]="p.id">
+        {{ p.firstName }} {{ p.lastName }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="vincularProfessor()"
+      [disabled]="!selectedClassId || !selectedTeacherId || isLoading">
+      <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+      {{ isLoading ? '' : 'Vincular Professor' }}
+    </button>
+  </div>
+
+  <table *ngIf="!isMobile" mat-table [dataSource]="ClassTeachers" class="mat-elevation-z8" style="width: 100%;">
+
+    <ng-container matColumnDef="nome">
+      <th mat-header-cell *matHeaderCellDef> Nome </th>
+      <td mat-cell *matCellDef="let t"> {{ t.firstName }} {{ t.lastName }} </td>
+    </ng-container>
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef> E-mail </th>
+      <td mat-cell *matCellDef="let t"> {{ t.email }} </td>
+    </ng-container>
+    <ng-container matColumnDef="turma">
+      <th mat-header-cell *matHeaderCellDef> Turma </th>
+      <td mat-cell *matCellDef="let t">
+        {{ t.className }} - {{ t.semesterName }} - {{ t.courseName }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acoes">
+      <th mat-header-cell *matHeaderCellDef> Ações </th>
+      <td mat-cell *matCellDef="let t">
+        <button mat-icon-button color="warn" (click)="removerVinculoProfessor(t.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'turma', 'acoes']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'turma', 'acoes']"></tr>
+  </table>
+
+  <div *ngIf="isMobile" class="card-list">
+    <div *ngFor="let t of ClassTeachers" class="card-item">
+      <h3>{{ t.firstName }} {{ t.lastName }}</h3>
+      <p>E-mail: {{ t.email }}</p>
+      <p>Turma: {{ t.className }} </p>
+      <p>Semestre: {{ t.semesterName }}</p>
+      <p>Curso: {{ t.courseName }}</p>
+      <div class="actions">
+        <button mat-icon-button color="warn" (click)="removerVinculoProfessor(t.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

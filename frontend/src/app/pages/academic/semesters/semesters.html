@@ -1,0 +1,68 @@
+<div>
+  <h2>Gestão de Semestres</h2>
+  <form (ngSubmit)="saveSemester()" #semesterForm="ngForm" style="margin-bottom: 1rem;">
+    <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+      <mat-label>Nome</mat-label>
+      <input matInput [(ngModel)]="semester.name" name="name" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+      <mat-label>Ano</mat-label>
+      <input matInput [(ngModel)]="semester.year" name="year" required />
+    </mat-form-field>
+    <div class="actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="!semesterForm.form.valid || isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        {{ isLoading ? '' : semester.id ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+
+    <button *ngIf="semester.id" mat-button type="button" (click)="cancelEditSemester()">
+      Cancelar
+    </button>
+    </div>
+  </form>
+
+  <table *ngIf="!isMobile" mat-table [dataSource]="semesters" class="mat-elevation-z8" style="width: 100%;">
+    <ng-container matColumnDef="nome">
+      <th mat-header-cell *matHeaderCellDef> Nome </th>
+      <td mat-cell *matCellDef="let t"> {{ t.name }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ano">
+      <th mat-header-cell *matHeaderCellDef> Ano </th>
+      <td mat-cell *matCellDef="let t"> {{ t.year }} </td>
+    </ng-container>
+
+
+
+    <ng-container matColumnDef="acoes">
+      <th mat-header-cell *matHeaderCellDef> Ações </th>
+      <td mat-cell *matCellDef="let t">
+        <button mat-icon-button color="primary" (click)="editSemester(t)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteSemester(t.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['nome', 'ano', 'acoes']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['nome', 'ano', 'acoes']"></tr>
+  </table>
+  <div *ngIf="isMobile" class="card-list">
+    <div *ngFor="let t of semesters" class="card-item">
+      <h3>{{ t.name }}</h3>
+      <p>Ano: {{ t.year }}</p>
+      <div class="actions">
+        <button mat-icon-button color="primary" (click)="editSemester(t)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteSemester(t.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    </div>
+
+</div>

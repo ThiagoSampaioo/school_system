@@ -1,0 +1,396 @@
+
+
+<!-- Menu Principal -->
+<ng-container *ngIf="selectedSection === 'menu'">
+  <div class="card-grid">
+    <mat-card class="card" (click)="selectSection('students')">
+
+      <h3>Alunos</h3>
+      <p>Controle cadastro e atribuições</p>
+    </mat-card>
+
+    <mat-card class="card" (click)="selectSection('teachers')">
+
+      <h3>Professores</h3>
+      <p>Controle de cadastro</p>
+    </mat-card>
+
+    <mat-card class="card" (click)="selectSection('coordinators')">
+
+      <h3>Coordenadores</h3>
+      <p>Controle de cadastro</p>
+    </mat-card>
+  </div>
+</ng-container>
+
+<!-- Botão Voltar -->
+<ng-container *ngIf="selectedSection !== 'menu'">
+  <button mat-button color="primary" (click)="goBack()" class="back-button">
+    <mat-icon>arrow_back</mat-icon> Voltar
+  </button>
+
+
+
+
+  <!-- Submenu de Alunos -->
+  <div *ngIf="selectedSection === 'students' && !studentSubsection">
+    <h2>Gestão de Alunos</h2>
+    <div class="card-grid">
+      <mat-card class="card" (click)="studentSubsection = 'studentCrud'">
+
+        <h3>Cadastro de Alunos</h3>
+        <p>Gerenciar criação e edição de alunos</p>
+      </mat-card>
+      <mat-card class="card" (click)="studentSubsection = 'studentClassLink'">
+
+        <h3>Turmas</h3>
+        <p>Atribuir alunos às turmas</p>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- CRUD de Alunos -->
+  <div *ngIf="studentSubsection === 'studentCrud'">
+
+    <h3>Cadastro de Alunos</h3>
+    <form (ngSubmit)="saveStudent()" #studentForm="ngForm" style="margin-bottom: 1rem;">
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="student.firstName" name="firstName" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Sobrenome</mat-label>
+        <input matInput [(ngModel)]="student.lastName" name="lastName" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="student.email" name="email" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Usuário</mat-label>
+        <input matInput [(ngModel)]="student.username" name="username" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;" *ngIf="!student.id">
+        <mat-label>Senha</mat-label>
+        <input matInput [(ngModel)]="student.password" name="password" type="password" required />
+      </mat-form-field>
+
+      <div >
+        <button mat-raised-button color="primary" type="submit" [disabled]="!studentForm.form.valid || isLoading">
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          {{ isLoading ? '' : student.id ? 'Atualizar' : 'Cadastrar' }}
+        </button>
+
+        <button *ngIf="student.id" mat-button type="button" (click)="cancelEditStudent()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+<!-- VISUALIZAÇÃO EM TABELA (DESKTOP) -->
+    <table *ngIf="!isMobile" mat-table [dataSource]="students" class="mat-elevation-z8" style="width: 100%;">
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let s"> {{ s.firstName }} {{ s.lastName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td mat-cell *matCellDef="let s"> {{ s.email }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let s">
+          <button mat-icon-button color="primary" (click)="editStudent(s)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(s.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'acoes']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'acoes']"></tr>
+    </table>
+<!-- VISUALIZAÇÃO EM LISTA (MOBILE) -->
+    <div *ngIf="isMobile" class="card-list">
+      <div *ngFor="let s of students" class="card-item">
+        <h3>{{ s.firstName }} {{ s.lastName }}</h3>
+        <p>Email: {{ s.email }}</p>
+        <div class="actions">
+          <button mat-icon-button color="primary" (click)="editStudent(s)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(s.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+  <!-- RELACIONAR ALUNOS À TURMA -->
+ <div *ngIf="studentSubsection === 'studentClassLink'">
+  <h3>Relacionar Alunos às Turmas</h3>
+
+  <!-- Selecionar Turma -->
+  <mat-form-field appearance="outline" style="width: 300px; margin-right: 1rem;">
+    <mat-label>Turma</mat-label>
+    <mat-select [(ngModel)]="selectedClassId" name="class" >
+      <mat-option *ngFor="let c of classes" [value]="c.id">
+        {{ c.name }} - {{ c.curriculumMatrix?.semester?.name || '?' }} - {{ c.curriculumMatrix?.course?.name || '?' }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Selecionar Aluno -->
+  <mat-form-field appearance="outline" style="width: 300px;">
+    <mat-label>Aluno</mat-label>
+    <mat-select [(ngModel)]="selectedStudentId" name="student">
+      <mat-option *ngFor="let a of students" [value]="a.id">
+        {{ a.firstName }} {{ a.lastName }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+      <div class="actions">
+  <button mat-raised-button [disabled]="!selectedStudentId || !selectedClassId || isLoading" (click)="vincularAluno()">
+    <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+   {{ isLoading ? '' : 'Vincular Aluno à Turma'}}
+  </button>
+  </div>
+
+
+  <table *ngIf="!isMobile" mat-table [dataSource]="ClassStudents" class="mat-elevation-z8" style="width: 100%;">
+    <ng-container matColumnDef="nome">
+      <th mat-header-cell *matHeaderCellDef> Nome </th>
+      <td mat-cell *matCellDef="let s"> {{ s.firstName }} {{ s.lastName }} </td>
+    </ng-container>
+    <ng-container matColumnDef="semestre">
+      <th mat-header-cell *matHeaderCellDef> Semestre </th>
+      <td mat-cell *matCellDef="let s"> {{ s.semesterName }} </td>
+    </ng-container>
+    <ng-container matColumnDef="turma">
+      <th mat-header-cell *matHeaderCellDef> Turma </th>
+      <td mat-cell *matCellDef="let s"> {{ s.className }} </td>
+    </ng-container>
+    <ng-container matColumnDef="curso">
+      <th mat-header-cell *matHeaderCellDef> Curso </th>
+      <td mat-cell *matCellDef="let s"> {{ s.courseName }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="remover">
+      <th mat-header-cell *matHeaderCellDef> Ação </th>
+      <td mat-cell *matCellDef="let s">
+        <button mat-icon-button color="warn" (click)="removerVinculoAluno(s.id)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['nome', 'semestre', 'turma', 'curso', 'remover']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['nome', 'semestre', 'turma', 'curso', 'remover']"></tr>
+  </table>
+  <div *ngIf="isMobile" class="card-list">
+    <div *ngFor="let s of ClassStudents" class="card-item">
+      <h3>{{ s.firstName }} {{ s.lastName }}</h3>
+      <p>Semestre: {{ s.semesterName }}</p>
+      <p>Turma: {{ s.className }}</p>
+      <p>Curso: {{ s.courseName }}</p>
+      <div class="actions">
+        <button mat-icon-button color="warn" (click)="removerVinculoAluno(s.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+  <div *ngIf="selectedSection === 'teachers'">
+    <h3>Gestão de Professores</h3>
+    <form (ngSubmit)="saveTeacher()" #teacherForm="ngForm" style="margin-bottom: 1rem;">
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="teacher.firstName" name="firstName" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Sobrenome</mat-label>
+        <input matInput [(ngModel)]="teacher.lastName" name="lastName" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="teacher.email" name="email" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Usuário</mat-label>
+        <input matInput [(ngModel)]="teacher.username" name="username" required />
+      </mat-form-field>
+
+      <!-- Senha do Professor só é necessária na criação -->
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;" *ngIf="!teacher.id">
+        <mat-label>Senha</mat-label>
+        <input matInput [(ngModel)]="teacher.password" name="password" type="password" required />
+
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="!teacherForm.form.valid || isLoading">
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          {{ isLoading ? '' : teacher.id ? 'Atualizar' : 'Cadastrar' }}
+        </button>
+
+        <button *ngIf="teacher.id" mat-button type="button" (click)="cancelEditTeacher()">
+          Cancelar
+        </button>
+      </div>
+
+    </form>
+
+    <table *ngIf="!isMobile" mat-table [dataSource]="teachers" class="mat-elevation-z8" style="width: 100%;">
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let t"> {{ t.firstName }} {{ t.lastName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td mat-cell *matCellDef="let t"> {{ t.email }} </td>
+      </ng-container>
+
+
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let t">
+          <button mat-icon-button color="primary" (click)="editTeacher(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'acoes']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'acoes']"></tr>
+    </table>
+
+    <div *ngIf="isMobile" class="card-list">
+      <div *ngFor="let t of teachers" class="card-item">
+        <h3>{{ t.firstName }} {{ t.lastName }}</h3>
+        <p>Email: {{ t.email }}</p>
+        <div class="actions">
+          <button mat-icon-button color="primary" (click)="editTeacher(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      </div>
+
+
+
+  </div>
+  <div *ngIf="selectedSection === 'coordinators'">
+    <h3>Gestão de Coordenadores</h3>
+    <form (ngSubmit)="saveCoordinator()" #coordinatorForm="ngForm" style="margin-bottom: 1rem;">
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="coordinator.firstName" name="firstName" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Sobrenome</mat-label>
+        <input matInput [(ngModel)]="coordinator.lastName" name="lastName" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="coordinator.email" name="email" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Usuário</mat-label>
+        <input matInput [(ngModel)]="coordinator.username" name="username" required />
+      </mat-form-field>
+      <!-- Senha do Coordenador só é necessária na criação -->
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;" *ngIf="!coordinator.id">
+        <mat-label>Senha</mat-label>
+        <input matInput [(ngModel)]="coordinator.password" name="password" type="password" required />
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="!coordinatorForm.form.valid || isLoading">
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          {{ isLoading ? '' : coordinator.id ? 'Atualizar' : 'Cadastrar' }}
+        </button>
+
+      <button *ngIf="coordinator.id" mat-button type="button" (click)="cancelEditCoordinator()">
+        Cancelar
+      </button>
+      </div>
+
+    </form>
+
+    <table *ngIf="!isMobile" mat-table [dataSource]="coordinators" class="mat-elevation-z8" style="width: 100%;">
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let t"> {{ t.firstName }} {{ t.lastName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td mat-cell *matCellDef="let t"> {{ t.email }} </td>
+      </ng-container>
+
+
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let t">
+          <button mat-icon-button color="primary" (click)="editCoordinator(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'acoes']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'acoes']"></tr>
+    </table>
+
+    <div *ngIf="isMobile" class="card-list">
+      <div *ngFor="let t of coordinators" class="card-item">
+        <h3>{{ t.firstName }} {{ t.lastName }}</h3>
+        <p>Email: {{ t.email }}</p>
+        <div class="actions">
+          <button mat-icon-button color="primary" (click)="editCoordinator(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ng-container>

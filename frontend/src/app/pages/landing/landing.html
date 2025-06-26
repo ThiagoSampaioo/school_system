@@ -1,0 +1,44 @@
+<mat-toolbar color="primary" class="toolbar">
+  <span class="brand">Elévare Faculdade</span>
+  <button mat-stroked-button color="accent" (click)="login()">Acessar Portal</button>
+</mat-toolbar>
+
+<!-- HERO -->
+<section class="hero" @fadeIn>
+  <h1>Seu Futuro Começa Aqui</h1>
+  <p>Formação de excelência, estrutura moderna e foco em tecnologia e liderança.</p>
+  <button mat-raised-button color="accent" (click)="login()">Entrar Agora</button>
+</section>
+
+<!-- FEATURES COM STAGGER -->
+<section class="features" @fadeInStagger>
+  <mat-card matRipple class="feature-card" *ngFor="let item of features">
+    <mat-icon class="feature-icon">{{ item.icon }}</mat-icon>
+    <h3>{{ item.title }}</h3>
+    <p>{{ item.description }}</p>
+  </mat-card>
+</section>
+
+<!-- CTA -->
+<section class="cta" @fadeIn>
+  <h2>Transforme sua carreira com a Elévare</h2>
+  <p>Inscrições abertas para novos cursos. Garanta sua vaga!</p>
+  <button mat-raised-button color="accent" (click)="login()">Quero me inscrever</button>
+</section>
+<!-- FOOTER -->
+ <hr>
+<footer class="footer" @fadeIn>
+  <p>&copy; 2023 Elévare Faculdade. Todos os direitos reservados.</p>
+  <div class="social-icons">
+    <a href="#" matTooltip="Facebook" aria-label="Facebook">
+    <i style="font-size:24px" class="fa">&#xf09a;</i>
+    </a>
+    <a href="#" matTooltip="Twitter" aria-label="Twitter">
+     <i style="font-size:24px" class="fa">&#xf16a;</i>
+    </a>
+    <a href="#" matTooltip="Instagram" aria-label="Instagram">
+ <i style="font-size:24px" class="fa">&#xf16d;</i>
+    </a>
+  </div>
+</footer>
+

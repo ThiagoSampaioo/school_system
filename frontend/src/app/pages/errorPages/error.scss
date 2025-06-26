@@ -1,0 +1,38 @@
+.error-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #002e5b, #1976d2);
+  color: #fff;
+  text-align: center;
+  padding: 2rem;
+
+  h1 {
+    font-size: 6rem;
+    margin: 0.5rem 0;
+  }
+
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .error-icon {
+    color: #ff8c08;
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%   { transform: scale(1); opacity: 1; }
+    50%  { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  button {
+    font-weight: bold;
+    padding: 0.75rem 2rem;
+  }
+}

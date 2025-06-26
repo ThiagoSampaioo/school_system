@@ -1,0 +1,23 @@
+<div *ngIf="loading">Carregando informações...</div>
+<div *ngIf="error">Erro ao carregar os dados.</div>
+
+<mat-card-title class="card-title">Resumo Acadêmico</mat-card-title>
+<div *ngIf="(!teacherInfo || teacherInfo.length === 0 ) && !loading">
+  <p>Nenhuma informação disponível.</p>
+</div>
+<mat-card *ngFor="let info of teacherInfo" style="margin-bottom: 1rem;">
+  <mat-card-content>
+    <p><strong>Nome:</strong> {{ info.firstName }} {{ info.lastName }}</p>
+    <p><strong>Email:</strong> {{ info.email }}</p>
+
+    <hr />
+
+    <p><strong>Turma:</strong> {{ info.className }}</p>
+    <p><strong>Período:</strong> {{ info.startDate | date: 'dd/MM/yyyy' }} até {{ info.endDate | date: 'dd/MM/yyyy' }}</p>
+
+    <hr />
+
+    <p><strong>Curso:</strong> {{ info.courseName }}</p>
+    <p><strong>Semestre:</strong> {{ info.semesterName }}</p>
+  </mat-card-content>
+</mat-card>

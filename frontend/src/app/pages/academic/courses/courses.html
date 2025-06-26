@@ -1,0 +1,72 @@
+<div >
+    <h2>Gestão de Cursos</h2>
+    <form (ngSubmit)="saveCourse()" #courseForm="ngForm" style="margin-bottom: 1rem;">
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="course.name" name="name" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Descrição</mat-label>
+        <textarea matInput [(ngModel)]="course.description" name="description" required ></textarea>
+      </mat-form-field>
+
+
+      <div class="actions">
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="!courseForm.form.valid || isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        {{ isLoading ? '' : course.id ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+
+      <button *ngIf="course.id" mat-button type="button" (click)="cancelEditCourse()">
+        Cancelar
+      </button>
+      </div>
+    </form>
+
+    <table *ngIf="!isMobile" mat-table [dataSource]="courses" class="mat-elevation-z8" style="width: 100%;">
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let t"> {{ t.name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="descricao">
+        <th mat-header-cell *matHeaderCellDef> Descrição </th>
+        <td mat-cell *matCellDef="let t"> {{ t.description }} </td>
+      </ng-container>
+
+
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let t">
+          <button mat-icon-button color="primary" (click)="editCourse(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCourse(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['nome', 'descricao', 'acoes']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['nome', 'descricao', 'acoes']"></tr>
+    </table>
+
+    <div *ngIf="isMobile" class="card-list">
+      <div *ngFor="let t of courses" class="card-item">
+        <h3>{{ t.name }}</h3>
+        <p>Descrição: {{ t.description }}</p>
+        <div class="actions">
+          <button mat-icon-button color="primary" (click)="editCourse(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCourse(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>

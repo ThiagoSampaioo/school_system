@@ -1,0 +1,90 @@
+<div>
+    <h2>Gestão de Matriz Curricular</h2>
+    <form (ngSubmit)="saveCurriculum()"  #curriculumForm="ngForm" style="margin-bottom: 1rem;">
+
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Curso</mat-label>
+        <mat-select [(ngModel)]="curriculum.courseId" name="courseId" required>
+          <mat-option *ngFor="let course of courses" [value]="course.id">{{ course.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Semestre</mat-label>
+        <mat-select [(ngModel)]="curriculum.semesterId" name="semesterId" required>
+          <mat-option *ngFor="let semester of semesters" [value]="semester.id">{{ semester.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width: 200px; margin-right: 1rem;">
+        <mat-label>Disciplina</mat-label>
+        <mat-select [(ngModel)]="curriculum.subjectId" name="subjectId" required>
+          <mat-option *ngFor="let subject of subjects" [value]="subject.id">{{ subject.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="actions">
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="!curriculumForm.form.valid || isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        {{ isLoading ? '' : curriculum.id ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+
+      <button *ngIf="curriculum.id" mat-button type="button" (click)="cancelEditCurriculum()">
+        Cancelar
+      </button>
+      </div>
+    </form>
+
+    <table *ngIf="!isMobile" mat-table [dataSource]="curriculums" class="mat-elevation-z8" style="width: 100%;">
+
+
+      <ng-container matColumnDef="semestre">
+        <th mat-header-cell *matHeaderCellDef> Semestre </th>
+        <td mat-cell *matCellDef="let t"> {{ t.semester.name }} </td>
+      </ng-container>
+      <ng-container matColumnDef="curso">
+        <th mat-header-cell *matHeaderCellDef> Curso </th>
+        <td mat-cell *matCellDef="let t"> {{ t.course.name }} </td>
+      </ng-container>
+      <ng-container matColumnDef="disciplina">
+        <th mat-header-cell *matHeaderCellDef> Disciplina </th>
+        <td mat-cell *matCellDef="let t"> {{ t.subject.name }} </td>
+      </ng-container>
+      <ng-container matColumnDef="carga_horaria">
+        <th mat-header-cell *matHeaderCellDef> Carga Horária </th>
+        <td mat-cell *matCellDef="let t"> {{ t.subject.workloadHours }} horas </td>
+      </ng-container>
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let t">
+          <button mat-icon-button color="primary" (click)="editCurriculum(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCurriculum(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['semestre', 'curso', 'disciplina', 'carga_horaria', 'acoes']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['semestre', 'curso', 'disciplina', 'carga_horaria', 'acoes']"></tr>
+    </table>
+
+    <div *ngIf="isMobile" class="card-list">
+      <div *ngFor="let t of curriculums" class="card-item">
+        <h3>{{ t.subject.name }}</h3>
+        <p>Curso: {{ t.course.name }}</p>
+        <p>Semestre: {{ t.semester.name }}</p>
+        <p>Carga Horária: {{ t.subject.workloadHours }} horas</p>
+        <div class="actions">
+          <button mat-icon-button color="primary" (click)="editCurriculum(t)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCurriculum(t.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
