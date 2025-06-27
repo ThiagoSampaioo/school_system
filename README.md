@@ -130,6 +130,10 @@ Senha: `admin`
 - Ex: `admin@elavare.com`, com role `admin` e senha `123456`
 - Ative “Temporary = false” ao definir a senha
 
+Assista a apresentação que postei no LinkedIn ao final mostro tudo como deve ficar para o projeto rodar limpo. Fique atento para copiar as chaves de acesso que voce gerar e substitua para o backend-api e frontend.
+
+https://www.linkedin.com/posts/thiago-sampaio-b62a3524b_angular-quarkus-java-activity-7344176158759948288-eejh?utm_source=share&utm_medium=member_android&rcm=ACoAAD3pQzoBESIT_JgBiccswMH5ppN4jQs-18U
+
 ---
 
 ## 🔧 Configuração do Backend (`application.properties`)
