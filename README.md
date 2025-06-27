@@ -1,4 +1,3 @@
-# school_system
 # Elévare School System
 
 Sistema Acadêmico completo utilizando **Angular 20+ (standalone)** no frontend, **Quarkus (Java)** no backend, **Keycloak** para autenticação e **MySQL** como banco de dados.
