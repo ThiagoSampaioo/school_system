@@ -85,6 +85,96 @@ A aplicação estará disponível em: [http://localhost:4200/](http://localhost:
 > Obs: o frontend consome a API em `http://localhost:8082/`
 
 ---
+## Configuração do Keycloak
+
+Após subir os containers com `docker-compose up -d`, acesse o painel do Keycloak:
+
+🔗 http://localhost:8080/  
+Usuário: `admin`  
+Senha: `admin`
+
+### 1. Criar um Realm
+
+- Nome: `school-system`
+
+### 2. Criar Clients
+
+####  Backend (confidential)
+- Client ID: `backend-api`
+- Client Protocol: `openid-connect`
+- Access Type: `confidential`
+- Client Secret: `64wMfAsVX6kKu7dAQwfj9qA0Vx5amwa3`
+- Service Accounts Enabled: 
+- Standard Flow Enabled: 
+- Direct Access Grants Enabled: 
+- Root URL: `http://localhost:8082`
+
+>  **Importante**: Esse client é usado para comunicação interna do Quarkus com o Keycloak (admin API).
+
+####  Frontend (public)
+- Client ID: `frontend`
+- Access Type: `public`
+- Standard Flow Enabled: 
+- Root URL: `http://localhost:4200`
+
+### 3. Criar as Roles
+
+- `admin`
+- `aluno`
+- `professor`
+- `coordenador`
+
+### 4. Criar Usuários e Atribuir Roles
+
+- Acesse `Users > Create user`
+- Ex: `admin@elavare.com`, com role `admin` e senha `123456`
+- Ative “Temporary = false” ao definir a senha
+
+---
+
+## 🔧 Configuração do Backend (`application.properties`)
+
+```properties
+# Banco de dados
+quarkus.datasource.db-kind=mysql
+quarkus.datasource.username=root
+quarkus.datasource.password=root
+quarkus.datasource.jdbc.url=jdbc:mysql://localhost:3307/unifor
+
+# Porta e logs
+quarkus.http.port=8082
+quarkus.log.console.level=INFO
+
+# Swagger
+quarkus.swagger-ui.always-include=true
+quarkus.swagger-ui.path=/swagger-ui
+
+# OIDC Keycloak
+quarkus.oidc.auth-server-url=http://localhost:8080/realms/school-system
+quarkus.oidc.client-id=backend-api
+quarkus.oidc.credentials.secret=64wMfAsVX6kKu7dAQwfj9qA0Vx5amwa3
+quarkus.oidc.application-type=service
+quarkus.oidc.discovery-enabled=true
+
+# Permissões
+quarkus.http.auth.permission.authenticated.paths=/users/*
+quarkus.http.auth.permission.authenticated.policy=authenticated
+
+# CORS para permitir comunicação com o frontend
+quarkus.http.cors=true
+quarkus.http.cors.origins=http://localhost:4200
+quarkus.http.cors.methods=GET,PUT,POST,DELETE,OPTIONS
+quarkus.http.cors.headers=Authorization,Content-Type,Accept
+quarkus.http.cors.exposed-headers=Authorization,Content-Type
+quarkus.http.cors.access-control-allow-credentials=true
+
+# Keycloak Admin API (para criação de usuários)
+keycloak.admin.server-url=http://localhost:8080
+keycloak.admin.realm=school-system
+keycloak.admin.client-id=backend-api
+keycloak.admin.client-secret=64wMfAsVX6kKu7dAQwfj9qA0Vx5amwa3
+
+```
 
 ## Funcionalidades
 
