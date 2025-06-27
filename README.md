@@ -40,8 +40,8 @@ Sistema Acadêmico completo utilizando **Angular 20+ (standalone)** no frontend,
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/seu-usuario/elavare-school-system.git
-cd elavare-school-system
+git clone https://github.com/ThiagoSampaioo/school_system.git
+cd school_system
 ```
 
 ### 2. Subir os containers
